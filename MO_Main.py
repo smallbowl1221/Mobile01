@@ -17,13 +17,11 @@ import MO_article_part
 ua = UserAgent()
 
 #紀錄執行時間
-st = datetime.datetime.now()
-start_time = st.strftime('%Y-%m-%d %H:%M:%S')
+    #st = datetime.datetime.now()
+    #start_time = st.strftime('%Y-%m-%d %H:%M:%S')
 
 #抓取.csv的絕對路徑
 Data_address = os.path.abspath("..") + "\\Data\\Mobile\\M_Data\\"
-#創.csv
-creat_board.creat(Data_address)
 
 #mobile主頁面
 url_mobile = "https://www.mobile01.com/"
@@ -40,13 +38,14 @@ broad_url = "https://www.mobile01.com/forumtopic.php?c="
 # c = 目前第幾個版
 # 由Mobile.bat餵的資料
 # argv 為陣列[xxx.py , arg0 , arg1 , arg2 , ......]
-c = int(sys.argv[1])
-
+# c = int(sys.argv[1])
+c = 0
 #印出目前版面
 print(board_url_name[c] + ":")
 
 article_url_list = []
 article_response_num_list = []
+article_date_list = []
 
 #回應更新暫存(如有更新回應數)
 #rs_index = [   ["文章編號","回應數量"] ]
@@ -68,6 +67,8 @@ for p in range(1,21):
     article_set = list_body.findAll("div",class_ = "c-listTableTd__title")
     #抓取每個文章欄回應數的html
     response_num_set = list_body.findAll("div",class_ = "l-listTable__td l-listTable__td--count")
+    #抓取每個文章的時間
+    time_set = list_body.findAll("div",class_ = "o-fNotes")
 
     #將每個文章的url存入article_url_list中(type:str)
     for i in article_set:
@@ -75,19 +76,13 @@ for p in range(1,21):
     #將每個文章的回應數存入article_response_num_list中(type:str)
     for j in response_num_set:
         article_response_num_list.append(j.div.text)
+    #將每個文章的時間處理成yyyy_mm
+    for t in time_set:
+        str_time = t.text[0:4] + "_" + t.text[5:7]
+        article_date_list.append(str_time)
 
 
-#載入.csv並記錄之前的URL & 回應數----------------------------------------------------------------------------------------------
-with open(Data_address + board_url_name[c] + ".csv", newline="",encoding="utf-8-sig") as csvFile:
-    dic = csv.DictReader(csvFile)#將.csv轉成dictionary
-    id_vector = []
-    rs_vector = []
-    for row in dic:
-        id_vector.append(row["article_ID"]) #將所有"article_ID" 存入id_vector
-        rs_vector.append(row["回應數"]) #將所有"回應數" 存入rs_vector
 
-    print(id_vector)
-    print(rs_vector)
         
 
 #逐一處理單一文章---------------------------------------------------------------------------------------------------------------
@@ -96,9 +91,25 @@ for num in range(len(article_url_list)):
         
     url = article_url_list[num]                 #單一文章url
     rs_num = article_response_num_list[num]     #單一文章回應數
-        
+    file_date = article_date_list[num]          #單一文章時間
+    
     #欲抓的文章id
     id_t = board_id[c] + "_" + url[url.find("t=")+2:url.find("t=")+9]
+
+    creat_board.creat(Data_address,file_date)
+
+    #載入.csv並記錄之前的URL & 回應數--------------------------------------
+    with open(Data_address + file_date + "_文章" + ".csv", newline="",encoding="utf-8-sig") as csvFile:
+        print("open the file : " + file_date + "_文章" + ".csv")
+        dic = csv.DictReader(csvFile)#將.csv轉成dictionary
+        id_vector = []
+        rs_vector = []
+        for row in dic:
+            id_vector.append(row["article_ID"]) #將所有"article_ID" 存入id_vector
+            rs_vector.append(row["回應數"]) #將所有"回應數" 存入rs_vector
+
+    #print(id_vector)
+    #print(rs_vector)
 
     #檢查是否重複(article_exist = True ==> 文章存在)
     #i = 記錄中的index
@@ -124,34 +135,28 @@ for num in range(len(article_url_list)):
     #若重複
     elif(rs_updata):
         #如果回應數比紀錄的多 ==> 更新回應
-        MO_article_part.rs_updata(Data_address,url,board_url_name[c],id_t,fr)
-        #將文章暫存於   rs_index["文章編號","回應數量"]    中
-        rs_index.append([id_t,rs_num])
+        MO_article_part.rs_updata(Data_address,url,file_date,id_t,fr)
             
-
-#一次更新該版全部的回應數---------------------------------------------------------------------------------------------------------------
-with open( Data_address + board_url_name[c] + ".csv" , newline="" , encoding="utf-8-sig" ) as csvFile:
-    #用pandas讀取csv檔案
-    df = pd.read_csv(csvFile)#,index_col= "article_ID"
-
-    #rs_index = [   ["文章編號","回應數量"] ]
-    #開始更新dataframe
-    for reg in rs_index:
-        df.loc[ df["article_ID"] == reg[0],"回應數"] = reg[1]
-                    
-    #將df(dataframe)更新CSV
-    df.to_csv( Data_address + board_url_name[c] + ".csv",index = False , encoding="utf-8-sig") 
+        #更新該文章的回應數---------------------------------------------------------------------------------------------------------------
+        with open( Data_address + file_date + "_文章" + ".csv" , newline="" , encoding="utf-8-sig" ) as csvFile:
+            #用pandas讀取csv檔案
+            df = pd.read_csv(csvFile)
+            #index_col= "article_ID"
+            df.loc[ df["article_ID"] == id_t,"回應數"] = rs_num
+                            
+            #將df(dataframe)更新CSV
+            df.to_csv( Data_address + file_date + "_文章" + ".csv" ,index = False , encoding="utf-8-sig") 
     
 
+# tiem txt
+    # et = datetime.datetime.now()
+    # end_time = et.strftime('%Y-%m-%d %H:%M:%S')
 
-et = datetime.datetime.now()
-end_time = et.strftime('%Y-%m-%d %H:%M:%S')
+    # s = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+    # e = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+    # exetime = e - s
 
-s = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
-e = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
-exetime = e - s
-
-with open(os.path.dirname(os.path.abspath(__file__)) + "\\" + "exetime.txt","a+") as exetxt:
-    exetxt.write(board_url_name[c] + ": " + str(exetime)+"\n")
+    # with open(os.path.dirname(os.path.abspath(__file__)) + "\\" + "exetime.txt","a+") as exetxt:
+    #     exetxt.write(board_url_name[c] + ": " + str(exetime)+"\n")
 
 time.sleep(10)
