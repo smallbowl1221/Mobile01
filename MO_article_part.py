@@ -19,9 +19,9 @@ main_url = "https://www.mobile01.com/"
 ua = UserAgent()    #random ua
 
 #寫回回應csv
-def write_csv(file_date ,rs_exist , address , url, id_t , response_list):
+def write_csv(rs_exist , address , url, id_t , response_list):
     #文章存入 回應之 CSV 檔案-------------------------------------------------------------------------------------------------------------------------------------------
-        name_response_csv = file_date + "_回應.csv"  
+        name_response_csv = "_回應.csv"  
 
         #確定有回應
         if(rs_exist):
@@ -110,9 +110,7 @@ def getcontent(address , url , id_t , fr1) :
         #時間格式化
         t = str(article_time_set[0].text)
         article_time = t[0:4] + "年" + t[5:7] + "月" + t[8:10] + "日" + " " + t[11:16]  ##yyyy年mm月dd日 hh:mm
-        file_date = t[0:4] + "_" + t[5:7]
-        
-        creat_board.creat(address,file_date)
+           
     # 文章內容--------------------------------------------------------------------------------------------------------------------------------------------------
 
         # 搜尋出 "div" 且 itemprop = "articleBody" 的資料
@@ -142,7 +140,7 @@ def getcontent(address , url , id_t , fr1) :
             rs_exist = True
 
             response_list,fr = getresponse(response_set, fr)
-            write_csv(file_date , rs_exist , address , url , id_t , response_list)
+            write_csv(rs_exist , address , url , id_t , response_list)
             #確定有超過一頁的回應頁面
             try:
                 totalnum = int(root.find_all("a",class_ = "c-pagination")[-1].text)
@@ -157,7 +155,7 @@ def getcontent(address , url , id_t , fr1) :
                     #呼叫 function getresponse( list page_set )
                     response_list,fr = getresponse( page_set , fr )
                     #print(len(response_list))
-                    write_csv(file_date , rs_exist , address , url , id_t , response_list)
+                    write_csv(rs_exist , address , url , id_t , response_list)
                 print(url)
             except IndexError:
                 print(url + "   :  no page")
@@ -211,7 +209,7 @@ def getcontent(address , url , id_t , fr1) :
         print("fr  = "+ str(fr))
 
     #文章存入 CSV 檔案--------------------------------------------------------------------------------------------------------------------------------------------
-        name_csv = file_date + "_文章" + ".csv"
+        name_csv ="_文章.csv"
 
         with open(address + name_csv, "a+", newline='',encoding="utf-8-sig") as csvFile:
         # 建立 CSV 檔寫入器
@@ -264,7 +262,7 @@ def rs_updata( address , url , file_date , id_t , fr ):
                 #呼叫 function getresponse( list page_set )
                 response_list,fr = getresponse( page_set , fr )
                 #print(len(response_list))
-                write_csv(file_date , True , address , url , id_t , response_list)
+                write_csv( True , address , url , id_t , response_list)
                 #重設position
                 position = 0
         except IndexError:

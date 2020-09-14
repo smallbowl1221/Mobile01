@@ -21,7 +21,7 @@ ua = UserAgent()
     #start_time = st.strftime('%Y-%m-%d %H:%M:%S')
 
 #抓取.csv的絕對路徑
-Data_address = os.path.abspath("..") + "\\Data\\Mobile\\M_Data\\"
+Dir_address = os.path.abspath("..") + "\\Data\\Mobile\\M_Data"
 
 #mobile主頁面
 url_mobile = "https://www.mobile01.com/"
@@ -76,7 +76,7 @@ for p in range(1,21):
     #將每個文章的回應數存入article_response_num_list中(type:str)
     for j in response_num_set:
         article_response_num_list.append(j.div.text)
-    #將每個文章的時間處理成yyyy_mm
+    #將每個文章的時間處理成 yyyy_mm
     for t in time_set:
         str_time = t.text[0:4] + "_" + t.text[5:7]
         article_date_list.append(str_time)
@@ -93,14 +93,24 @@ for num in range(len(article_url_list)):
     rs_num = article_response_num_list[num]     #單一文章回應數
     file_date = article_date_list[num]          #單一文章時間
     
+    #將時間獨立出來
+    year = file_date[0:4]
+    month = file_date[5:7]
+
     #欲抓的文章id
     id_t = board_id[c] + "_" + url[url.find("t=")+2:url.find("t=")+9]
 
-    creat_board.creat(Data_address,file_date)
+    #檢查新建 DATA path
+    creat_board.creat(Dir_address + "\\" + year , file_date)
+
+    #將資料位置加上     年份\月份\時間_版
+    Data_address = Dir_address + "\\" + year + "\\" + month + "月" +"\\" + file_date + "_" +board_url_name[c]
+
+
 
     #載入.csv並記錄之前的URL & 回應數--------------------------------------
-    with open(Data_address + file_date + "_文章" + ".csv", newline="",encoding="utf-8-sig") as csvFile:
-        print("open the file : " + file_date + "_文章" + ".csv")
+    with open(Data_address + "_文章" + ".csv", newline="",encoding="utf-8-sig") as csvFile:
+        print("open the file : " + file_date + "_" + board_url_name[c] + "_文章" + ".csv")
         dic = csv.DictReader(csvFile)#將.csv轉成dictionary
         id_vector = []
         rs_vector = []
@@ -138,14 +148,14 @@ for num in range(len(article_url_list)):
         MO_article_part.rs_updata(Data_address,url,file_date,id_t,fr)
             
         #更新該文章的回應數---------------------------------------------------------------------------------------------------------------
-        with open( Data_address + file_date + "_文章" + ".csv" , newline="" , encoding="utf-8-sig" ) as csvFile:
+        with open( Data_address + "_文章" + ".csv" , newline="" , encoding="utf-8-sig" ) as csvFile:
             #用pandas讀取csv檔案
             df = pd.read_csv(csvFile)
             #index_col= "article_ID"
             df.loc[ df["article_ID"] == id_t,"回應數"] = rs_num
                             
             #將df(dataframe)更新CSV
-            df.to_csv( Data_address + file_date + "_文章" + ".csv" ,index = False , encoding="utf-8-sig") 
+            df.to_csv( Data_address + "_文章" + ".csv" ,index = False , encoding="utf-8-sig") 
     
 
 # tiem txt
