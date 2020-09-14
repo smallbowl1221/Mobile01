@@ -156,6 +156,7 @@ for num in range(len(article_url_list)):
                             
             #將df(dataframe)更新CSV
             df.to_csv( Data_address + "_文章" + ".csv" ,index = False , encoding="utf-8-sig") 
+        print( "以更新回應數: " + rs_num )
     
 
 # tiem txt
