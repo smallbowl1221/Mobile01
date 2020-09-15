@@ -88,6 +88,7 @@ for p in range(1,21):
 #逐一處理單一文章---------------------------------------------------------------------------------------------------------------
 article_exist = False
 for num in range(len(article_url_list)):
+    print("-"*50)
         
     url = article_url_list[num]                 #單一文章url
     rs_num = article_response_num_list[num]     #單一文章回應數
@@ -140,10 +141,15 @@ for num in range(len(article_url_list)):
         
     #若沒有重複 ==> 新增資料
     if(not article_exist):
+        print("首次寫入之文章: " + url )
         MO_article_part.getcontent(Data_address,url,id_t,int(rs_num))
         
     #若重複
     elif(rs_updata):
+
+        # 標示處理之url
+        print("更新回應之文章: " + url )
+
         #如果回應數比紀錄的多 ==> 更新回應
         MO_article_part.rs_updata(Data_address,url,file_date,id_t,fr)
             
@@ -156,9 +162,10 @@ for num in range(len(article_url_list)):
                             
             #將df(dataframe)更新CSV
             df.to_csv( Data_address + "_文章" + ".csv" ,index = False , encoding="utf-8-sig") 
-        print( "以更新回應數: " + rs_num )
+        print( "更新之檔案/id/回應數: " + file_date + "_" +board_url_name[c] + ".csv" + " / " +  id_t + " / " + rs_num)
     
-
+    else:
+        print(rs_updata)
 # tiem txt
     # et = datetime.datetime.now()
     # end_time = et.strftime('%Y-%m-%d %H:%M:%S')

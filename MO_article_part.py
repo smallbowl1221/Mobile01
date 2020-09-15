@@ -156,9 +156,9 @@ def getcontent(address , url , id_t , fr1) :
                     response_list,fr = getresponse( page_set , fr )
                     #print(len(response_list))
                     write_csv(rs_exist , address , url , id_t , response_list)
-                print(url)
+                
             except IndexError:
-                print(url + "   :  no page")
+                print(":no page")
         #2-1
             for num in response_set:
                 #name ---------------------------------------------------------
@@ -205,8 +205,8 @@ def getcontent(address , url , id_t , fr1) :
         else:
             print("not response")
 
-        print("fr1 = " + str(fr1))
-        print("fr  = "+ str(fr))
+        #print("fr1 = " + str(fr1))
+        #print("fr  = "+ str(fr))
 
     #文章存入 CSV 檔案--------------------------------------------------------------------------------------------------------------------------------------------
         name_csv ="_文章.csv"
@@ -220,9 +220,7 @@ def getcontent(address , url , id_t , fr1) :
 
 #rs_updata(位置,url,版名,文章id,回應數)
 def rs_updata( address , url , file_date , id_t , fr ):
-    # 標示處理之url------------------------------------------------------------------------------------------------------------------------------------------
-        print("rs: " + url )
-
+    
     # 抓取網頁原始碼-----------------------------------------------------------------------------------------------------------------------------------------
         request = req.Request(url, headers ={"User-Agent" : ua.chrome})
         with req.urlopen(request) as response:
