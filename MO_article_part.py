@@ -267,20 +267,24 @@ def rs_updata( address , url , file_date , id_t , fr ):
                 #重設position
                 position = 0
         except IndexError:
-            print("nopage")
+            #print("nopage")
+            print("只有一頁")
 
             # 待測試 當回應只有1page
 
-            # position = fr
-            # request = req.Request(page_url, headers ={"User-Agent" : ua.chrome})
-            # with req.urlopen(request) as response:
-            #     data = response.read().decode("utf-8")
-            # page_reg = bs4.BeautifulSoup(data, "html.parser")
-            # page_set = page_reg.find_all("div",class_ = "l-articlePage")#抓取回應html
-            # del(page_set[0])    #刪除第一筆資料(非回應)
-            # for j in range(position-1):
-            #     del(page_set[0])
-            # write_csv( True , address , url , id_t , response_list)
+            position = fr+1
+            request = req.Request(url, headers ={"User-Agent" : ua.chrome})
+            with req.urlopen(request) as response:
+                data = response.read().decode("utf-8")
+            page_reg = bs4.BeautifulSoup(data, "html.parser")
+            page_set = page_reg.find_all("div",class_ = "l-articlePage")#抓取回應html
+            del(page_set[0])    #刪除第一筆資料(非回應)
+            for j in range(position-1):
+                del(page_set[0])
+            #呼叫 function getresponse( list page_set )
+            print("this page need response number : " + str( len(page_set) ) )
+            response_list,fr = getresponse( page_set , fr )
+            write_csv( True , address , url , id_t , response_list)
     
 
 
