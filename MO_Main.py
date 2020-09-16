@@ -100,14 +100,13 @@ for num in range(len(article_url_list)):
 
     #欲抓的文章id
     id_t = board_id[c] + "_" + url[url.find("t=")+2:url.find("t=")+9]
+    print("文章ID: " + id_t)
 
     #檢查新建 DATA path
     creat_board.creat(Dir_address + "\\" + year , file_date)
 
     #將資料位置加上     年份\月份\時間_版
     Data_address = Dir_address + "\\" + year + "\\" + month + "月" +"\\" + file_date + "_" +board_url_name[c]
-
-
 
     #載入.csv並記錄之前的URL & 回應數--------------------------------------
     with open(Data_address + "_文章" + ".csv", newline="",encoding="utf-8-sig") as csvFile:
@@ -119,25 +118,26 @@ for num in range(len(article_url_list)):
             id_vector.append(row["article_ID"]) #將所有"article_ID" 存入id_vector
             rs_vector.append(row["回應數"]) #將所有"回應數" 存入rs_vector
 
-    #print(id_vector)
-    #print(rs_vector)
-
     #檢查是否重複(article_exist = True ==> 文章存在)
     #i = 記錄中的index
+
     for i in range(len(id_vector)):
         if( id_t == id_vector[i]):
+
             article_exist = True
             #檢查現在文章回應數是否大於紀錄
-            if(int(rs_num) > int(rs_vector[i])): 
+            if(int(rs_num) >= int(rs_vector[i])): 
                 #儲存.csv紀錄中的回應數
                 fr = int(rs_vector[i])
-                rs_updata = True
+                rs_update = True
+
             else:
-                rs_updata = False
+                rs_update = False
+
             break
         else:
             article_exist = False
-            rs_updata = False
+            rs_update = False
         
     #若沒有重複 ==> 新增資料
     if(not article_exist):
@@ -145,14 +145,14 @@ for num in range(len(article_url_list)):
         MO_article_part.getcontent(Data_address,url,id_t,int(rs_num))
         
     #若重複
-    elif(rs_updata):
+    elif(rs_update):
 
         # 標示處理之url
         print("更新回應之文章: " + url )
 
         #如果回應數比紀錄的多 ==> 更新回應
         MO_article_part.rs_updata(Data_address,url,file_date,id_t,fr)
-            
+        
         #更新該文章的回應數---------------------------------------------------------------------------------------------------------------
         with open( Data_address + "_文章" + ".csv" , newline="" , encoding="utf-8-sig" ) as csvFile:
             #用pandas讀取csv檔案
@@ -163,9 +163,7 @@ for num in range(len(article_url_list)):
             #將df(dataframe)更新CSV
             df.to_csv( Data_address + "_文章" + ".csv" ,index = False , encoding="utf-8-sig") 
         print( "更新之檔案/id/回應數: " + file_date + "_" +board_url_name[c] + ".csv" + " / " +  id_t + " / " + rs_num)
-    
-    else:
-        print(rs_updata)
+
 # tiem txt
     # et = datetime.datetime.now()
     # end_time = et.strftime('%Y-%m-%d %H:%M:%S')

@@ -220,7 +220,7 @@ def getcontent(address , url , id_t , fr1) :
 
 #rs_updata(位置,url,版名,文章id,回應數)
 def rs_updata( address , url , file_date , id_t , fr ):
-    
+
     # 抓取網頁原始碼-----------------------------------------------------------------------------------------------------------------------------------------
         request = req.Request(url, headers ={"User-Agent" : ua.chrome})
         with req.urlopen(request) as response:
@@ -229,13 +229,13 @@ def rs_updata( address , url , file_date , id_t , fr ):
     # 取得文章bs4物件-----------------------------------------------------------------------------------------------------------------------------------------
         root = bs4.BeautifulSoup(data, "html.parser")
 
-        #確定有超過一頁的回應
+    #確定有超過一頁的回應
         try:
             #抓取總共頁數
             totalnum = int(root.find_all("a",class_ = "c-pagination")[-1].text)
-            
-            #處理原先存取之回應數(抓取頁數及位置 p => 第幾頁  l => 第幾個回應)
-            position = fr%10
+
+            #處理原先存取之回應數(抓取頁數及位置 p => 第幾頁  position => 第幾個回應)
+            position = (fr+1)%10
             if( position != 0 ):
                 p = int(fr/10)+1
             else:
@@ -252,9 +252,12 @@ def rs_updata( address , url , file_date , id_t , fr ):
                 page_set = page_reg.find_all("div",class_ = "l-articlePage")#抓取回應html
                 del(page_set[0])    #刪除第一筆資料(非回應)
                 print("page:" + str(i))
-                #將第一個抓取的頁面依position來做塞選
-                if(position != 0):
-                    for j in range(position+1):
+                #將第一個抓取的頁面依position來做篩選
+                if( position != 0 and p != 1):
+                    for j in range(position):
+                        del(page_set[0])
+                elif(p == 1):
+                     for j in range(position-1):
                         del(page_set[0])
                 print("this page need response number : " + str( len(page_set) ) )
                 #呼叫 function getresponse( list page_set )
@@ -265,6 +268,19 @@ def rs_updata( address , url , file_date , id_t , fr ):
                 position = 0
         except IndexError:
             print("nopage")
+
+            # 待測試 當回應只有1page
+
+            # position = fr
+            # request = req.Request(page_url, headers ={"User-Agent" : ua.chrome})
+            # with req.urlopen(request) as response:
+            #     data = response.read().decode("utf-8")
+            # page_reg = bs4.BeautifulSoup(data, "html.parser")
+            # page_set = page_reg.find_all("div",class_ = "l-articlePage")#抓取回應html
+            # del(page_set[0])    #刪除第一筆資料(非回應)
+            # for j in range(position-1):
+            #     del(page_set[0])
+            # write_csv( True , address , url , id_t , response_list)
     
 
 
