@@ -38,8 +38,8 @@ broad_url = "https://www.mobile01.com/forumtopic.php?c="
 # c = 目前第幾個版
 # 由Mobile.bat餵的資料
 # argv 為陣列[xxx.py , arg0 , arg1 , arg2 , ......]
-# c = int(sys.argv[1])
-c = 0
+c = int(sys.argv[1])
+
 #印出目前版面
 print(board_url_name[c] + ":")
 
