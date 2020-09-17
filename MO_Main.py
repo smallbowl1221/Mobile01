@@ -40,6 +40,8 @@ broad_url = "https://www.mobile01.com/forumtopic.php?c="
 # argv 為陣列[xxx.py , arg0 , arg1 , arg2 , ......]
 c = int(sys.argv[1])
 
+print("fuck")
+
 #印出目前版面
 print(board_url_name[c] + ":")
 
